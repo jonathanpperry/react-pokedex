@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { getPokemonPage, setCurrentPageUrl } from "../../actions";
@@ -8,6 +8,8 @@ function Pokedex({ pokeapiPage, pokedex, getPokemonPage, setCurrentPageUrl }) {
   const { pokemonResponse, status, error } = pokeapiPage;
   const { currentPageUrl } = pokedex;
 
+  const [pageNumber, setPageNumber] = useState(1);
+
   useEffect(() => {
     getPokemonPage(currentPageUrl);
   }, [currentPageUrl, getPokemonPage]);
@@ -15,12 +17,14 @@ function Pokedex({ pokeapiPage, pokedex, getPokemonPage, setCurrentPageUrl }) {
   const gotoPrevPage = () => {
     if (pokemonResponse.previous) {
       setCurrentPageUrl(pokemonResponse.previous);
+      setPageNumber(pageNumber-1)
     }
   };
 
   const gotoNextPage = () => {
     if (pokemonResponse.next) {
       setCurrentPageUrl(pokemonResponse.next);
+      setPageNumber(pageNumber+1)
     }
   };
 
@@ -47,6 +51,7 @@ function Pokedex({ pokeapiPage, pokedex, getPokemonPage, setCurrentPageUrl }) {
       <Pagination
         gotoNextPage={gotoNextPage}
         gotoPrevPage={gotoPrevPage}
+        pageNumber={pageNumber}
         status={status}
       />
     </div>
@@ -87,12 +92,18 @@ function PokemonList({ pokemonResults, pokedex }) {
   });
 }
 
-function Pagination({ gotoPrevPage, gotoNextPage, isRequestPending }) {
+function Pagination({
+  gotoPrevPage,
+  gotoNextPage,
+  isRequestPending,
+  pageNumber,
+}) {
   return (
     <footer className="pagination">
       <button onClick={gotoPrevPage} disabled={isRequestPending}>
         Previous
       </button>
+      <b className="page-text">{pageNumber}</b>
       <button onClick={gotoNextPage} disabled={isRequestPending}>
         Next
       </button>
